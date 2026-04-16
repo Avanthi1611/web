@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ascend | Responsive Dashboard</title>
+
+    <style>
+        /* ==========================================
+           BASE STYLES & VARIABLES
+           ========================================== */
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --accent: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            /* Relative units for height ensure it spans the whole viewport */
+            min-height: 100vh; 
+        }
+
+        /* Glassmorphism utility */
+        .glass {
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        /* ==========================================
+           FLEXBOX: The Navigation Bar
+           ========================================== */
+        .navbar {
+            display: flex;
+            justify-content: space-between; /* Pushes logo left, links right */
+            align-items: center;
+            padding: 1rem 5%; /* % based padding scales with screen size */
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid var(--accent);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--accent); letter-spacing: 2px;}
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links a { color: var(--text-main); text-decoration: none; transition: 0.3s; }
+        .nav-links a:hover { color: var(--accent); }
+
+        /* ==========================================
+           HERO SECTION: Centering Content
+           ========================================== */
+        .hero {
+            padding: 4rem 5%;
+            text-align: center;
+        }
+        
+        /* Responsive typography using 'vw' (viewport width) */
+        .hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 10px; color: var(--accent); }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); max-width: 600px; margin: 0 auto; line-height: 1.6;}
+
+        /* ==========================================
+           CSS GRID: The Magic Responsive Layout
+           ========================================== */
+        .dashboard-grid {
+            padding: 2rem 5%;
+            display: grid;
+            /* THE ULTIMATE RESPONSIVE TRICK:
+               This tells the browser: "Make as many columns as will fit. 
+               They must be at least 300px wide, but can stretch to 1fr (1 fraction of available space)."
+               This requires ZERO media queries to work!
+            */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px; /* Space between grid items */
+        }
+
+        .card {
+            padding: 25px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .card h3 { margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+
+        /* ==========================================
+           MEDIA QUERIES: Mobile Breakpoints
+           ========================================== */
+        
+        /* When the screen is 768px wide or SMALLER (Tablets & Phones) */
+        @media (max-width: 768px) {
+            
+            /* Break the Flexbox nav so links stack under the logo */
+            .navbar {
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+
+            .logo { margin-bottom: 15px; }
+            
+            /* Center the stacked links */
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+                width: 100%;
+            }
+
+            /* Adjust padding for smaller screens */
+            .hero { padding: 2rem 5%; }
+        }
+
+        /* When the screen is 480px wide or SMALLER (Tiny Phones) */
+        @media (max-width: 480px) {
+            /* Force the grid to act like a single column, ignoring the 300px minimum */
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">ASCEND</div>
+        <ul class="nav-links">
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Modules</a></li>
+            <li><a href="#">Grades</a></li>
+            <li><a href="#">Settings</a></li>
+        </ul>
+    </nav>
+
+    <header class="hero">
+        <h1>Welcome back, Operator.</h1>
+        <p>Your responsive control panel adapts to any device. Resize your browser window to see the layout automatically reconstruct itself.</p>
+    </header>
+
+    <main class="dashboard-grid">
+        
+        <div class="card glass">
+            <h3>Server Status</h3>
+            <p style="color: #34d399;">● Online & Optimized</p>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Uptime: 99.98% over the last 30 days. No bottlenecks detected.</p>
+        </div>
+
+        <div class="card glass">
+            <h3>Current Assignments</h3>
+            <ul style="padding-left: 20px; color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+                <li>Advanced PHP Algorithms (Due: Friday)</li>
+                <li>Regex Data Masking (Completed)</li>
+                <li>Responsive UI/UX Build (In Progress)</li>
+            </ul>
+        </div>
+
+        <div class="card glass">
+            <h3>Peer Hub Activity</h3>
+            <p>You have <strong>3</strong> new notifications from your cohort.</p>
+            <button style="background: var(--accent); color: var(--bg-dark); border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">View Hub</button>
+        </div>
+
+        <div class="card glass">
+            <h3>HelpfulScore</h3>
+            <h1 style="margin: 0; color: var(--accent); font-size: 3rem;">842</h1>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Top 5% of Ascend Academy contributors.</p>
+        </div>
+
+    </main>
+
+</body>
+</html>
