@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Animation Gallery</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .box {
+            width: 100px;
+            height: 100px;
+            background-color: #3498db;
+            margin: 20px auto;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin: 5px;
+            cursor: pointer;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        button:hover { background: #1a252f; }
+
+        /* =========================================
+           PART 1: PURE CSS ANIMATIONS (No JS needed)
+           ========================================= */
+
+        /* 1. The Smooth Hover Scale */
+        .css-hover {
+            transition: transform 0.3s ease, background-color 0.3s;
+        }
+        .css-hover:hover {
+            transform: scale(1.2);
+            background-color: #e74c3c;
+        }
+
+        /* 2. The Continuous Spinner (Using Keyframes) */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .css-spin {
+            animation: spin 2s linear infinite;
+            border-radius: 50%; /* Make it a circle */
+            background-color: #9b59b6;
+        }
+
+        /* 3. The Bouncing Ball (Using Keyframes) */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+        .css-bounce {
+            animation: bounce 1s ease-in-out infinite;
+            background-color: #f1c40f;
+            color: black;
+            border-radius: 50%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="section">
+        <h3>1. CSS Hover Grow</h3>
+        <p>Hover your mouse over me!</p>
+        <div class="box css-hover">Hover</div>
+    </div>
+
+    <div class="section">
+        <h3>2. CSS Continuous Spin</h3>
+        <p>Uses @keyframes</p>
+        <div class="box css-spin">Spin</div>
+    </div>
+
+    <div class="section">
+        <h3>3. CSS Bounce</h3>
+        <p>Uses @keyframes</p>
+        <div class="box css-bounce">Bounce</div>
+    </div>
+
+    <div class="section">
+        <h3>4. jQuery Fade In/Out</h3>
+        <div class="box" id="fadeBox">Fader</div>
+        <button id="btnFadeOut">Fade Out</button>
+        <button id="btnFadeIn">Fade In</button>
+    </div>
+
+    <div class="section">
+        <h3>5. jQuery Slide Up/Down</h3>
+        <div class="box" id="slideBox" style="background-color: #2ecc71;">Slider</div>
+        <button id="btnSlideUp">Slide Up</button>
+        <button id="btnSlideDown">Slide Down</button>
+    </div>
+
+    <div class="section">
+        <h3>6. jQuery Toggle</h3>
+        <p>One button does both!</p>
+        <div class="box" id="toggleBox" style="background-color: #e67e22;">Toggle</div>
+        <button id="btnToggle">Toggle Fade</button>
+    </div>
+
+    <div class="section">
+        <h3>7. jQuery Custom Animate</h3>
+        <p>Moves the box and changes opacity.</p>
+        <div class="box" id="animateBox" style="background-color: #34495e; position: relative;">Move</div>
+        <button id="btnAnimate">Animate Me!</button>
+        <button id="btnReset">Reset</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+
+            // Example 4: Fading
+            $('#btnFadeOut').click(function() {
+                $('#fadeBox').fadeOut(500); // 500ms duration
+            });
+            $('#btnFadeIn').click(function() {
+                $('#fadeBox').fadeIn(500);
+            });
+
+            // Example 5: Sliding
+            $('#btnSlideUp').click(function() {
+                $('#slideBox').slideUp('fast');
+            });
+            $('#btnSlideDown').click(function() {
+                $('#slideBox').slideDown('slow');
+            });
+
+            // Example 6: Toggle (automatically detects if it should fade in or out)
+            $('#btnToggle').click(function() {
+                $('#toggleBox').fadeToggle(400);
+            });
+
+            // Example 7: Custom Animation (Changing CSS properties over time)
+            $('#btnAnimate').click(function() {
+                $('#animateBox').animate({
+                    left: '100px',
+                    opacity: '0.5',
+                    height: '150px',
+                    width: '150px'
+                }, 1000); // Takes 1 second (1000ms) to complete
+            });
+
+            $('#btnReset').click(function() {
+                $('#animateBox').animate({
+                    left: '0px',
+                    opacity: '1',
+                    height: '100px',
+                    width: '100px'
+                }, 500);
+            });
+
+        });
+    </script>
+</body>
+</html>
