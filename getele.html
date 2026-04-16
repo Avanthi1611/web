@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ascend Course Registration</title>
+    <style>
+        /* Modern Glassmorphism & Dark Mode Aesthetics */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); 
+            color: #e2e8f0; 
+            margin: 0; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 16px; 
+            padding: 40px; 
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+
+        h2 { 
+            margin-top: 0; 
+            color: #00ffcc; 
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 255, 204, 0.3);
+            padding-bottom: 15px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        
+        label { display: block; margin-bottom: 8px; font-size: 0.9em; color: #a0aec0; }
+        
+        /* Text Input Styling */
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 5px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        input[type="text"]:focus { border-color: #00ffcc; }
+
+        /* Checkbox Group Styling */
+        .checkbox-group {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-item:last-child { margin-bottom: 0; }
+        .checkbox-item input { margin-right: 10px; width: 18px; height: 18px; cursor: pointer; }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #00ffcc;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        button:hover { background: #00b38f; }
+
+        /* Receipt / Result Box Styling */
+        #receiptBox {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid #00ffcc;
+            border-radius: 5px;
+            display: none; /* Hidden until calculation is done */
+        }
+
+        .error-text { color: #ff4a57; font-size: 0.9em; display: none; margin-top: -15px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="glass-panel">
+        <h2>Academy Registration</h2>
+
+        <div class="form-group">
+            <label>Student Name</label>
+            <input type="text" id="studentName" placeholder="Enter your full name">
+        </div>
+        <div id="nameError" class="error-text">Please enter a student name.</div>
+
+        <div class="form-group">
+            <label>Select Your Lab Modules ($150 each)</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" name="module" value="Web Development">
+                    <label style="margin:0;">Web Development</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" name="module" value="Database Architecture">
+                    <label style="margin:0;">Database Architecture</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" name="module" value="Server Security">
+                    <label style="margin:0;">Server Security</label>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="processRegistration()">Confirm Registration</button>
+
+        <div id="receiptBox">
+            </div>
+    </div>
+
+    <script>
+        function processRegistration() {
+            // 1. DEMONSTRATING: getElementById()
+            // We use this because there is only ONE student name input and ONE error box.
+            let nameInput = document.getElementById("studentName").value;
+            let errorBox = document.getElementById("nameError");
+            let receiptDisplay = document.getElementById("receiptBox");
+
+            // Simple validation
+            if (nameInput.trim() === "") {
+                errorBox.style.display = "block"; // Show error
+                receiptDisplay.style.display = "none"; // Hide receipt
+                return; // Stop the function
+            } else {
+                errorBox.style.display = "none"; // Hide error if it was previously showing
+            }
+
+            // 2. DEMONSTRATING: getElementsByName()
+            // We use this because we want to grab all the checkboxes at once as an Array/NodeList.
+            let checkboxes = document.getElementsByName("module");
+            
+            let selectedModules = [];
+            let totalCost = 0;
+
+            // Loop through the array of checkboxes to see which ones the user actually clicked
+            for (let i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked === true) {
+                    selectedModules.push(checkboxes[i].value); // Add the name to our list
+                    totalCost += 150; // Add $150 to the total
+                }
+            }
+
+            // 3. GENERATE THE OUTPUT
+            // If they didn't check any boxes, warn them.
+            if (selectedModules.length === 0) {
+                receiptDisplay.innerHTML = `<span style="color:#ff4a57">Please select at least one module.</span>`;
+                receiptDisplay.style.display = "block";
+                return;
+            }
+
+            // Build the final receipt HTML
+            let finalHTML = `
+                <strong style="color:white;">Student:</strong> ${nameInput}<br><br>
+                <strong style="color:white;">Enrolled Modules:</strong>
+                <ul style="margin-top: 5px; margin-bottom: 15px; padding-left: 20px;">
+            `;
+            
+            for(let i = 0; i < selectedModules.length; i++) {
+                finalHTML += `<li>${selectedModules[i]}</li>`;
+            }
+
+            finalHTML += `</ul>
+                <strong style="color:white; font-size:1.2em;">Total Due: $${totalCost}</strong>
+            `;
+
+            // Finally, use getElementById one last time to inject the HTML into the page
+            receiptDisplay.innerHTML = finalHTML;
+            receiptDisplay.style.display = "block";
+        }
+    </script>
+</body>
+</html>
