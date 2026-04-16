@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Validation & Object Manipulation</title>
+    <style>
+        /* Basic styling for a clean output */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background-color: #218838; }
+        
+        .error { color: red; font-size: 14px; margin-top: 5px; display: none; }
+        
+        /* Styles for the dynamically generated list */
+        .user-card {
+            background: #e9ecef;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        .delete-btn:hover { background-color: #c82333; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Register New User</h2>
+        <form id="userForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter username">
+                <div class="error" id="nameError">Username must be at least 3 characters long.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" id="email" placeholder="Enter email">
+                <div class="error" id="emailError">Please enter a valid email address.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role">
+                    <option value="">Select a role...</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Editor">Editor</option>
+                    <option value="Viewer">Viewer</option>
+                </select>
+                <div class="error" id="roleError">Please select a role.</div>
+            </div>
+
+            <button type="submit">Add User</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <h2>Active Users (Dynamic DOM)</h2>
+        <div id="userList">
+            <p>No users added yet.</p>
+        </div>
+    </div>
+
+    <script>
+        // 1. Data Structure (The Object array we will manipulate)
+        let usersArray = [];
+
+        // 2. Select DOM Elements
+        const form = document.getElementById('userForm');
+        const userListDiv = document.getElementById('userList');
+
+        // 3. Event Listener: Form Submission
+        form.addEventListener('submit', function(event) {
+            // Prevent the form from refreshing the page
+            event.preventDefault();
+
+            // Fetch current input values
+            const usernameInput = document.getElementById('username').value.trim();
+            const emailInput = document.getElementById('email').value.trim();
+            const roleInput = document.getElementById('role').value;
+
+            // Reset error messages (hide them all initially)
+            document.querySelectorAll('.error').forEach(err => err.style.display = 'none');
+
+            // --- CLIENT-SIDE VALIDATION LOGIC ---
+            let isValid = true;
+
+            // Validate Username length
+            if (usernameInput.length < 3) {
+                document.getElementById('nameError').style.display = 'block';
+                isValid = false;
+            }
+
+            // Validate Email format using Regex
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailInput)) {
+                document.getElementById('emailError').style.display = 'block';
+                isValid = false;
+            }
+
+            // Validate Role selection
+            if (roleInput === "") {
+                document.getElementById('roleError').style.display = 'block';
+                isValid = false;
+            }
+
+            // If any validation failed, stop the function here
+            if (!isValid) return;
+
+            // --- OBJECT MANIPULATION LOGIC ---
+            
+            // Create a new User object
+            const newUser = {
+                id: Date.now(), // Generate a unique ID based on timestamp
+                name: usernameInput,
+                email: emailInput,
+                role: roleInput
+            };
+
+            // Push the new object into our array
+            usersArray.push(newUser);
+
+            // Clear the form fields for the next entry
+            form.reset();
+
+            // Update the screen
+            renderUsers();
+        });
+
+        // 4. Dynamic DOM Manipulation Function
+        function renderUsers() {
+            // Clear current list contents
+            userListDiv.innerHTML = ''; 
+
+            // If array is empty, show default message
+            if (usersArray.length === 0) {
+                userListDiv.innerHTML = '<p>No users added yet.</p>';
+                return;
+            }
+
+            // Loop through the array and create HTML elements for each object
+            usersArray.forEach(function(user) {
+                
+                // Create the container DIV for the user card
+                const card = document.createElement('div');
+                card.className = 'user-card';
+
+                // Create the text content
+                const userInfo = document.createElement('div');
+                userInfo.innerHTML = `<strong>${user.name}</strong> (${user.role}) <br> <small>${user.email}</small>`;
+
+                // Create a Delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerText = 'Remove';
+                
+                // Event Listener for dynamically created delete button
+                deleteBtn.addEventListener('click', function() {
+                    // Object Manipulation: Filter out the user with this specific ID
+                    usersArray = usersArray.filter(u => u.id !== user.id);
+                    
+                    // Re-render the UI after manipulating the array
+                    renderUsers();
+                });
+
+                // Assemble the elements
+                card.appendChild(userInfo);
+                card.appendChild(deleteBtn);
+
+                // Append the final card to the main visible list container
+                userListDiv.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
