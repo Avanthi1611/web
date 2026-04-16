@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Canvas Studio</title>
+    <style>
+        /* Cyberpunk / Dark Mode Aesthetic */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0f19;
+            color: #00ffcc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Glassmorphism Toolbar */
+        .toolbar {
+            background: rgba(20, 20, 40, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid #ff007f;
+            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.3);
+            padding: 15px 30px;
+            border-radius: 50px;
+            margin: 20px 0;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+
+        input[type="color"] {
+            cursor: pointer;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: transparent;
+        }
+
+        input[type="range"] { cursor: pointer; }
+
+        button {
+            background: #ff007f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #00ffcc;
+            color: #0b0f19;
+            box-shadow: 0 0 10px #00ffcc;
+        }
+
+        .btn-clear { background: transparent; border: 1px solid #ff007f; color: #ff007f; }
+        .btn-clear:hover { background: #ff007f; color: white; box-shadow: none; }
+
+        /* The Graphics Rendering Area */
+        canvas {
+            background-color: #1a1a2e;
+            border: 2px solid #00ffcc;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <div class="tool-group">
+            <label for="colorPicker">Neon Ink:</label>
+            <input type="color" id="colorPicker" value="#00ffcc">
+        </div>
+
+        <div class="tool-group">
+            <label for="brushSize">Brush Size:</label>
+            <input type="range" id="brushSize" min="1" max="50" value="5">
+        </div>
+
+        <div class="tool-group">
+            <button class="btn-clear" id="clearBtn">Wipe Canvas</button>
+            <button id="saveBtn">Export as PNG</button>
+        </div>
+    </div>
+
+    <canvas id="graphicsCanvas"></canvas>
+
+    <script>
+        // 1. SETUP THE GRAPHICS ENGINE
+        const canvas = document.getElementById('graphicsCanvas');
+        // The '2d' context is the object that actually holds all the drawing tools (like a virtual pen)
+        const ctx = canvas.getContext('2d'); 
+
+        // Set canvas to a fixed high-resolution size for drawing
+        canvas.width = 1000;
+        canvas.height = 600;
+
+        // Variables to track the user's mouse state
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        // Grab the HTML UI elements
+        const colorPicker = document.getElementById('colorPicker');
+        const brushSize = document.getElementById('brushSize');
+        const clearBtn = document.getElementById('clearBtn');
+        const saveBtn = document.getElementById('saveBtn');
+
+        // Configure the initial virtual pen settings
+        ctx.lineJoin = 'round'; // Makes corners smooth
+        ctx.lineCap = 'round';  // Makes the end of lines smooth
+
+        // 2. THE DRAWING LOGIC
+        function draw(e) {
+            // Stop the function immediately if the user isn't holding down the mouse button
+            if (!isDrawing) return;
+
+            // Update the pen's color and thickness based on the HTML sliders
+            ctx.strokeStyle = colorPicker.value;
+            ctx.lineWidth = brushSize.value;
+
+            // Begin a new graphics path
+            ctx.beginPath();
+            
+            // Start from the last known mouse position
+            ctx.moveTo(lastX, lastY);
+            
+            // Calculate the current mouse position relative to the canvas
+            const rect = canvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+
+            // Draw a line to the new position
+            ctx.lineTo(currentX, currentY);
+            
+            // Actually render the stroke to the screen
+            ctx.stroke();
+
+            // Update the last position for the next frame
+            lastX = currentX;
+            lastY = currentY;
+        }
+
+        // 3. MOUSE EVENT LISTENERS
+        // When mouse goes down, start drawing and record starting coordinates
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            lastX = e.clientX - rect.left;
+            lastY = e.clientY - rect.top;
+        });
+
+        // When mouse moves, run the draw function
+        canvas.addEventListener('mousemove', draw);
+
+        // When mouse is let go or leaves the canvas area, stop drawing
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('mouseout', () => isDrawing = false);
+
+
+        // 4. CLEAR CANVAS FUNCTION
+        clearBtn.addEventListener('click', () => {
+            // Clears a rectangle the exact size of the entire canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // 5. THE EXPORT FUNCTION (The Big Flex)
+        saveBtn.addEventListener('click', () => {
+            // Convert the graphic data into a standard Base64 image URL
+            const imageURL = canvas.toDataURL('image/png');
+            
+            // Create a temporary, invisible link element
+            const link = document.createElement('a');
+            link.download = 'neon_sketch.png'; // Set the default file name
+            link.href = imageURL;
+            
+            // Fake a click on the link to trigger the download, then delete it
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
